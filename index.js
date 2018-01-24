@@ -20,7 +20,7 @@ async function updateData() {
     let hashrate = (body.hashrate / 1000).toFixed(2);
     console.log(`'Hashrate: ${hashrate} MH/s`);
     client.user.setActivity(`${hashrate} MH/s`);
-    body.blocks.forEach(function (block) {
+    body.blocks.forEach(block => {
         if(block.finder) {
             if(block.id <= db.get('block_mined').value()) return;
             db.update('block_mined', n => n + 1).
