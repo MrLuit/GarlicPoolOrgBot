@@ -1,5 +1,5 @@
-const Discord = require("discord.js");
-const request = require('request');
+const Discord = require('discord.js');
+const snekfetch = require('snekfetch');
 const client = new Discord.Client();
 const low = require('lowdb');
 const FileSync = require('lowdb/adapters/FileSync');
@@ -7,36 +7,34 @@ const adapter = new FileSync('db.json');
 const discord_token = '';
 const garlicpool_api_key = '';
 const db = low(adapter);
-process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
+process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
 
-db.defaults({users: [], block_mined: 20}).write();
+db.defaults({
+    users: [],
+    block_mined: 20
+}).write();
 
 const defined = function (thing) {
-    return typeof(thing) !== 'undefined' && thing !== null;
+    return typeof (thing) !== 'undefined' && thing !== null;
 };
 
-function updateData() {
-    request("https://garlicpool.org/index.php?page=api&action=getdashboarddata&api_key=" + garlicpool_api_key, function (error, response, body) {
-        if(!!error || response.statusCode !== 200) return console.log(error);
-
-        let data = JSON.parse(body).getdashboarddata.data.pool;
-        let hashrate = (data.hashrate / 1000).toFixed(2);
-        console.log('Hashrate: ' + hashrate + ' MH/s');
-        client.user.setActivity(hashrate + ' MH/s');
-        data.blocks.forEach(function (block) {
-			if(block.finder) {
-				if(block.id <= db.get('block_mined').value()) return;
-				db.update('block_mined', n => n + 1).
-				write();
-				let finder = db.get('users').find({username: block.finder}).value();
-				if (finder) {
-					client.channels.get('405041206687432705').send('Block #' + block.height + ' was mined by <@' + finder.discord_id + '>!');
-				} else {
-					client.channels.get('405041206687432705').send('Block #' + block.height + ' was mined by ' + block.finder + '!');
-				}
-				console.log("New block mined: " + block.id);
-			}
-        });
+async function updateData() {
+    const { body } = await snekfetch.get(`https://garlicpool.org/index.php?page=api&action=getdashboarddata&api_key=${garlicpool_api_key}`);
+    console.log(body);
+    let hashrate = (body.getdashboarddata.data.raw.pool.hashrate / 1000).toFixed(2);
+    console.log(`Hashrate: ${hashrate} MH/s`);
+    client.user.setActivity(`${hashrate} MH/s`);
+    body.blocks.forEach(block => {
+        if (block.finder) {
+            if (block.id <= db.get('block_mined').value()) return;
+            db.update('block_mined', n => n + 1).
+                write();
+            let finder = db.get('users').find({
+                username: block.finder
+            }).value();
+            client.channels.get('405041206687432705').send(`Block #${block.height} was mined by ${finder ? `<@${finder.discord_id}>` : block.finder}!`);
+            console.log(`New block mined: ${block.id}`);
+        }
     });
 }
 
@@ -47,38 +45,48 @@ client.on('ready', () => {
 });
 
 const cmds = {
-    "setname": function(data, msg){ cmds.setusername(data, msg); },
-    "setusername": function(data, msg){
+    'setname': function (data, msg) {
+        cmds.setusername(data, msg);
+    },
+    'setusername': function (data, msg) {
         // Ensures there is a username given
-        if(!defined(msg) || msg.length === 0)
-            return data.reply("Please specify your Garlicpool.org-username");
+        if (!defined(msg) || msg.length === 0)
+            return data.reply('Please specify your Garlicpool.org-username');
 
         // Checks if username is already used
-        let knowGiven = !!db.get('users').find({username: msg}).value();
-        if(knowGiven)
-            return data.reply("Uh-oh, looks like that username is already tied to a Discord account!");
+        let knowGiven = !!db.get('users').find({
+            username: msg
+        }).value();
+        if (knowGiven)
+            return data.reply('Uh-oh, looks like that username is already tied to a Discord account!');
 
         // Checks if we know the user giving command already
-        let knownsUser = !!db.get('users').find({discord_id: data.author.id}).value();
-        if(knownsUser) {
-            db.get('users').find({discord_id: data.author.id}).assign({
+        let knownsUser = !!db.get('users').find({
+            discord_id: data.author.id
+        }).value();
+        if (knownsUser) {
+            db.get('users').find({
+                discord_id: data.author.id
+            }).assign({
                 discord_id: data.author.id,
                 username: msg
             }).write();
         } else {
-            db.get('users').push({discord_id: data.author.id, username: msg}).write();
+            db.get('users').push({
+                discord_id: data.author.id,
+                username: msg
+            }).write();
         }
-        data.reply("done!");
+        data.reply('done!');
     },
-    "help": function(data, msg){
-        data.reply("**!setname <username>**: Set Garlicpool.org-username to your Discord account");
+    'help': function (data) {
+        data.reply('**!setname <username>**: Set Garlicpool.org-username to your Discord account');
     }
 };
 
 client.on('message', data => {
-	console.log(data);//395074411864129547
     let command = data.content.substr(1).split(' ');
-    if(!(command[0] in cmds) || data.channel.guild.id == '395074411864129547') return;
+    if (!(command[0] in cmds) || data.channel.guild.id == '395074411864129547') return;
     cmds[command[0]](data, command[1]);
 });
 
