@@ -25,16 +25,14 @@ async function updateData() {
     console.log(`Hashrate: ${hashrate} MH/s`);
     client.user.setActivity(`${hashrate} MH/s`);
     data.pool.blocks.forEach(block => {
-        if (block.finder) {
-            if (block.id <= db.get('block_mined').value()) return;
-            db.update('block_mined', n => n + 1).
-                write();
-            let finder = db.get('users').find({
-                username: block.finder
-            }).value();
-            client.channels.get('405041206687432705').send(`Block #${block.height} was mined by ${finder ? `<@${finder.discord_id}>` : block.finder}!`);
-            console.log(`New block mined: ${block.id}`);
-        }
+        if(!block.finder || block.id <= db.get('block_mined').value()) return;
+        db.update('block_mined', n => n + 1).
+            write();
+        let finder = db.get('users').find({
+            username: block.finder
+        }).value();
+        client.channels.get('405041206687432705').send(`Block #${block.height} was mined by ${finder ? `<@${finder.discord_id}>` : block.finder}!`);
+        console.log(`New block mined: ${block.id}`);
     });
 }
 
