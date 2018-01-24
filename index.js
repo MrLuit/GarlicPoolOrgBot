@@ -20,6 +20,7 @@ const defined = function (thing) {
 
 async function updateData() {
     const { body } = await snekfetch.get(`https://garlicpool.org/index.php?page=api&action=getdashboarddata&api_key=${garlicpool_api_key}`);
+    console.log(body);
     let hashrate = (body.hashrate / 1000).toFixed(2);
     console.log(`Hashrate: ${hashrate} MH/s`);
     client.user.setActivity(`${hashrate} MH/s`);
@@ -84,7 +85,6 @@ const cmds = {
 };
 
 client.on('message', data => {
-    console.log(data); //395074411864129547
     let command = data.content.substr(1).split(' ');
     if (!(command[0] in cmds) || data.channel.guild.id == '395074411864129547') return;
     cmds[command[0]](data, command[1]);
