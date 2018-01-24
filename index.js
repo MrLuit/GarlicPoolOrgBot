@@ -15,8 +15,8 @@ const defined = function (thing) {
     return typeof(thing) !== 'undefined' && thing !== null;
 };
 
-function updateData() {
-    const { body } = snekfetch.get(`https://garlicpool.org/index.php?page=api&action=getdashboarddata&api_key=${garlicpool_api_key}`);
+async function updateData() {
+    const { body } = await snekfetch.get(`https://garlicpool.org/index.php?page=api&action=getdashboarddata&api_key=${garlicpool_api_key}`);
     let hashrate = (body.hashrate / 1000).toFixed(2);
     console.log(`'Hashrate: ${hashrate} MH/s`);
     client.user.setActivity(`${hashrate} MH/s`);
