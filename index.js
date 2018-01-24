@@ -86,7 +86,7 @@ const cmds = {
 
 client.on('message', data => {
     let command = data.content.substr(1).split(' ');
-    if (!(command[0] in cmds) || data.channel.guild.id == '395074411864129547') return;
+    if (!(command[0] in cmds) || data.channel.guild.id != '404763968113082369') return;
     cmds[command[0]](data, command[1]);
 });
 
