@@ -20,11 +20,11 @@ const defined = function (thing) {
 
 async function updateData() {
     const { body } = await snekfetch.get(`https://garlicpool.org/index.php?page=api&action=getdashboarddata&api_key=${garlicpool_api_key}`);
-    console.log(body);
-    let hashrate = (body.getdashboarddata.data.raw.pool.hashrate / 1000).toFixed(2);
+    const data = JSON.parse(body.toString()).getdashboarddata.data;
+    let hashrate = (data.raw.pool.hashrate / 1000).toFixed(2);
     console.log(`Hashrate: ${hashrate} MH/s`);
     client.user.setActivity(`${hashrate} MH/s`);
-    body.blocks.forEach(block => {
+    data.pool.blocks.forEach(block => {
         if (block.finder) {
             if (block.id <= db.get('block_mined').value()) return;
             db.update('block_mined', n => n + 1).
