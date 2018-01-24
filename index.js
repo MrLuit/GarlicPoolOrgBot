@@ -16,25 +16,21 @@ const defined = function (thing) {
 };
 
 function updateData() {
-    request("https://garlicpool.org/index.php?page=api&action=getdashboarddata&api_key=" + garlicpool_api_key, function (error, response, body) {
+    request(`https://garlicpool.org/index.php?page=api&action=getdashboarddata&api_key=${garlicpool_api_key}`, function (error, response, body) {
         if(!!error || response.statusCode !== 200) return console.log(error);
 
         let data = JSON.parse(body).getdashboarddata.data.pool;
         let hashrate = (data.hashrate / 1000).toFixed(2);
-        console.log('Hashrate: ' + hashrate + ' MH/s');
-        client.user.setActivity(hashrate + ' MH/s');
+        console.log(`'Hashrate: ${hashrate} MH/s`);
+        client.user.setActivity(`${hashrate} MH/s`);
         data.blocks.forEach(function (block) {
 			if(block.finder) {
 				if(block.id <= db.get('block_mined').value()) return;
 				db.update('block_mined', n => n + 1).
 				write();
-				let finder = db.get('users').find({username: block.finder}).value();
-				if (finder) {
-					client.channels.get('405041206687432705').send('Block #' + block.height + ' was mined by <@' + finder.discord_id + '>!');
-				} else {
-					client.channels.get('405041206687432705').send('Block #' + block.height + ' was mined by ' + block.finder + '!');
-				}
-				console.log("New block mined: " + block.id);
+                let finder = db.get('users').find({username: block.finder}).value();
+                client.channels.get('405041206687432705').send(`Block #${block.height} was mined by ${finder ? `<@${finder.discord_id}>` : block.finder}!`);
+				console.log(`New block mined: ${block.id}`);
 			}
         });
     });
