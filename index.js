@@ -19,11 +19,9 @@ const defined = function (thing) {
 };
 
 async function updateData() {
-    const {
-        body
-    } = await snekfetch.get(`https://garlicpool.org/index.php?page=api&action=getdashboarddata&api_key=${garlicpool_api_key}`);
+    const { body } = await snekfetch.get(`https://garlicpool.org/index.php?page=api&action=getdashboarddata&api_key=${garlicpool_api_key}`);
     let hashrate = (body.hashrate / 1000).toFixed(2);
-    console.log(`'Hashrate: ${hashrate} MH/s`);
+    console.log(`Hashrate: ${hashrate} MH/s`);
     client.user.setActivity(`${hashrate} MH/s`);
     body.blocks.forEach(block => {
         if (block.finder) {
