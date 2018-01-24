@@ -4,8 +4,7 @@ const client = new Discord.Client();
 const low = require('lowdb');
 const FileSync = require('lowdb/adapters/FileSync');
 const adapter = new FileSync('db.json');
-const discord_token = '';
-const garlicpool_api_key = '';
+const config = require('./config.json');
 const db = low(adapter);
 let pool_data;
 process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
@@ -20,7 +19,7 @@ const defined = function (thing) {
 };
 
 async function updateData() {
-    const { body } = await snekfetch.get(`https://garlicpool.org/index.php?page=api&action=getdashboarddata&api_key=${garlicpool_api_key}`);
+    const { body } = await snekfetch.get(`https://garlicpool.org/index.php?page=api&action=getdashboarddata&api_key=${config.garlicpool_api_key}`);
     pool_data = JSON.parse(body.toString()).getdashboarddata.data;
     let hashrate = (pool_data.raw.pool.hashrate / 1000).toFixed(2);
     console.log(`Hashrate: ${hashrate} MH/s`);
@@ -78,30 +77,30 @@ const cmds = {
         }
         data.reply('done!');
     },
-	'hashrate': function(data) {
-		const total_hashrate = (pool_data.raw.network.hashrate / 1000000).toFixed(2);
-		const pool_hashrate = (pool_data.raw.pool.hashrate / 1000).toFixed(2); 
-		data.channel.send(`**Total hashrate**: ${total_hashrate} GH/s\n**Pool hashrate**: ${pool_hashrate} MH/s`);
-	},
-	'workers': function(data) {
-		const workers = pool_data.pool.workers;
-		data.channel.send(`**Workers**: ${workers}`);
-	},
-	'difficulty': function(data) {
-		const difficulty = pool_data.network.difficulty;
-		const next_difficulty = pool_data.network.nextdifficulty;
-		const blocksuntildiffchange = pool_data.network.blocksuntildiffchange;
-		data.channel.send(`**Difficulty**: ${difficulty}\n**Next difficulty**: ${next_difficulty} (changes in ${blocksuntildiffchange} blocks)`);
-	},
-	'block': function(data) {
-		const block = pool_data.network.block;
-		data.channel.send(`**Current block**: ${block}`);
-	},
-	'stats': function(data,msg) {
-		//not done yet
-	},
+    'hashrate': function(data) {
+        const total_hashrate = (pool_data.raw.network.hashrate / 1000000).toFixed(2);
+        const pool_hashrate = (pool_data.raw.pool.hashrate / 1000).toFixed(2); 
+        data.channel.send(`**Total hashrate**: ${total_hashrate} GH/s\n**Pool hashrate**: ${pool_hashrate} MH/s`);
+    },
+    'workers': function(data) {
+        const workers = pool_data.pool.workers;
+        data.channel.send(`**Workers**: ${workers}`);
+    },
+    'difficulty': function(data) {
+        const difficulty = pool_data.network.difficulty;
+        const next_difficulty = pool_data.network.nextdifficulty;
+        const blocksuntildiffchange = pool_data.network.blocksuntildiffchange;
+        data.channel.send(`**Difficulty**: ${difficulty}\n**Next difficulty**: ${next_difficulty} (changes in ${blocksuntildiffchange} blocks)`);
+    },
+    'block': function(data) {
+        const block = pool_data.network.block;
+        data.channel.send(`**Current block**: ${block}`);
+    },
+    'stats': function(data,msg) {
+        //not done yet
+    },
     'help': function (data) {
-        data.channel.send("**Commands**: " + Object.keys(cmds).join(", "));
+        data.channel.send('**Commands**: ' + Object.keys(cmds).join(', '));
         // data.channel.send('**!setname <username>**: Set Garlicpool.org-username to your Discord account');
     }
 };
@@ -112,4 +111,4 @@ client.on('message', data => {
     cmds[command[0]](data, command[1]);
 });
 
-client.login(discord_token);
+client.login(config.discord_token);
