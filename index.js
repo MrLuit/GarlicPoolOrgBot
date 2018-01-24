@@ -6,6 +6,8 @@ const FileSync = require('lowdb/adapters/FileSync');
 const adapter = new FileSync('db.json');
 const config = require('./config.json');
 const db = low(adapter);
+const djsversion = require('./node_modules/discord.js/package.json');
+const botversion = require('./package.json');
 let pool_data;
 process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
 
@@ -96,8 +98,15 @@ const cmds = {
         const block = pool_data.network.block;
         data.channel.send(`**Current block**: ${block}`);
     },
-    'stats': function(data,msg) {
-        //not done yet
+    'stats': function(data) {
+        const embed = Discord.RichEmbed()
+            .setColor(getRandomColor())
+            .addField('Uptime:', uptime(process.uptime()), true)
+            .addField('Current RAM usage:', `${(process.memoryUsage().heapUsed / 1024 / 1024).toFixed(2)}MB`, true)
+            .addField('Node.js Version:', process.version, true)
+            .addField('Bot\'s Version:', `v${botversion.version}`, true)
+            .addField('Discord.js Version:', `v${djsversion.version}`, true);
+        return data.channel.send(`**Statistics about ${this.client.user.username}:**`, { embed });
     },
     'help': function (data) {
         data.channel.send('**Commands**: ' + Object.keys(cmds).join(', '));
@@ -112,3 +121,19 @@ client.on('message', data => {
 });
 
 client.login(config.discord_token);
+
+function getRandomColor() {
+    var letters = '0123456789ABCDEF';
+    var color = '#';
+    for (var i = 0; i < 6; i++) {
+        color += letters[Math.floor(Math.random() * 16)];
+    }
+    return color;
+}
+
+function uptime(seconds) {
+    var numdays = Math.floor((seconds % 31536000) / 86400);
+    var numhours = Math.floor(((seconds % 31536000) % 86400) / 3600);
+    var numminutes = Math.floor((((seconds % 31536000) % 86400) % 3600) / 60);
+    return (numdays + 'd ' + numhours + 'h ' + numminutes + 'm');
+}
