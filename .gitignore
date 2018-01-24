@@ -4,6 +4,8 @@
 
 # User-specific stuff:
 .idea
+node_modules
+db.json
 
 
 # CMake
