@@ -101,7 +101,8 @@ const cmds = {
 		//not done yet
 	},
     'help': function (data) {
-        data.channel.send('**!setname <username>**: Set Garlicpool.org-username to your Discord account');
+        data.channel.send("Commands: " + Object.keys(cmds).join(", "));
+        // data.channel.send('**!setname <username>**: Set Garlicpool.org-username to your Discord account');
     }
 };
 
