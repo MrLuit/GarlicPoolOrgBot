@@ -1,4 +1,4 @@
-const utils = require("Utils.js");
+const utils = require("./Utils.js");
 
 const cmds = {
     'setname': function (data, msg) {

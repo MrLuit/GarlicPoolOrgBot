@@ -8,8 +8,8 @@ const config = require('./config.json');
 const db = low(adapter);
 const djsversion = require('./node_modules/discord.js/package.json');
 const botversion = require('./package.json');
-const utils = require("/bin/Utils.js");
-const cmds = require("/bin/Commands.js");
+const utils = require("./bin/Utils.js");
+const cmds = require("./bin/Commands.js");
 
 
 let pool_data;
@@ -35,6 +35,7 @@ async function updateData() {
         let finder = db.get('users').find({
             username: block.finder
         }).value();
+        console.log(client.channels);
         client.channels.get('405041206687432705').send(`Block #${block.height} was mined by ${finder ? `<@${finder.discord_id}>` : block.finder}!`);
         console.log(`New block mined: ${block.id}`);
     });
