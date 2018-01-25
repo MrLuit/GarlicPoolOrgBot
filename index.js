@@ -98,7 +98,7 @@ const cmds = {
         const block = pool_data.network.block;
         data.channel.send(`**Current block**: ${block}`);
     },
-    'stats': function(data) {
+    'botstats': function(data) {
         const embed = Discord.RichEmbed()
             .setColor(getRandomColor())
             .addField('Uptime:', uptime(process.uptime()), true)
