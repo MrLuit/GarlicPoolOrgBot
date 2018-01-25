@@ -4,7 +4,7 @@ const cmds = {
     'setname': function (data, msg) {
         cmds.setusername(data, msg);
     },
-    'setusername': function (data, msg) {
+    'setusername': function (bot, data, msg) {
         // Ensures there is a username given
         if (!utils.defined(msg) || msg.length === 0)
             return data.reply('Please specify your Garlicpool.org-username');
@@ -35,36 +35,40 @@ const cmds = {
         }
         data.reply('done!');
     },
-    'hashrate': function (data) {
+    'hashrate': function (bot, data) {
+        const pool_data = bot.pool_data;
         const total_hashrate = (pool_data.raw.network.hashrate / 1000000).toFixed(2);
         const pool_hashrate = (pool_data.raw.pool.hashrate / 1000).toFixed(2);
         data.channel.send(`**Total hashrate**: ${total_hashrate} GH/s\n**Pool hashrate**: ${pool_hashrate} MH/s`);
     },
-    'workers': function (data) {
-        const workers = pool_data.pool.workers;
+    'workers': function (bot, data) {
+        const workers = bot.pool_data.pool.workers;
         data.channel.send(`**Workers**: ${workers}`);
     },
-    'difficulty': function (data) {
+    'difficulty': function (bot, data) {
+        const pool_data = bot.pool_data;
         const difficulty = pool_data.network.difficulty;
         const next_difficulty = pool_data.network.nextdifficulty;
         const blocksuntildiffchange = pool_data.network.blocksuntildiffchange;
         data.channel.send(`**Difficulty**: ${difficulty}\n**Next difficulty**: ${next_difficulty} (changes in ${blocksuntildiffchange} blocks)`);
     },
-    'block': function (data) {
-        const block = pool_data.network.block;
+    'block': function (bot, data) {
+        const block = bot.pool_data.network.block;
         data.channel.send(`**Current block**: ${block}`);
     },
-    'botstats': function (data) {
+    'botstats': function (bot, data) {
         const embed = new Discord.RichEmbed()
             .setColor(utils.getRandomColor())
             .addField('Uptime:', utils.uptime(process.uptime()), true)
             .addField('Current RAM usage:', `${(process.memoryUsage().heapUsed / 1024 / 1024).toFixed(2)}MB`, true)
             .addField('Node.js Version:', process.version, true)
-            .addField('Bot\'s Version:', `v${botversion.version}`, true)
-            .addField('Discord.js Version:', `v${djsversion.version}`, true);
+            .addField('Bot\'s Version:', `v${bot.botversion.version}`, true)
+            .addField('Discord.js Version:', `v${bot.djsversion.version}`, true);
         return data.channel.send('**Statistics**', {embed});
     },
-    'poolstats': function (data) {
+    'poolstats': function (bot, data) {
+        const pool_data = bot.pool_data;
+        const pool_stats = bot.pool_stats;
         const embed = new Discord.RichEmbed()
             .setColor('GREEN')
             .addField('Pool Hashrate', `${pool_stats.hashrate.toFixed(3)}KH/s`, true)
@@ -76,7 +80,7 @@ const cmds = {
             .addField('Est. Next Difficulty', `${pool_data.network.nextdifficulty} (changes in ${pool_data.network.blocksuntildiffchange} blocks)`, true);
         return data.channel.send('**Statistics about Garlicpool.org:**', {embed});
     },
-    'help': function (data) {
+    'help': function (bot, data) {
         data.channel.send('**Commands**: ' + Object.keys(cmds).join(', '));
     }
 };
