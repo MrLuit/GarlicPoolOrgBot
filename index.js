@@ -47,7 +47,7 @@ async function updateData() {
 client.on('ready', () => {
     console.log(`Logged in as ${client.user.tag}!`);
     updateData();
-    setInterval(updateData, 20 * 1000);
+    client.setInterval(updateData, 20 * 1000);
 });
 
 const cmds = {
