@@ -116,7 +116,7 @@ const cmds = {
     },
     'poolstats': function(data) {
         const embed = new Discord.RichEmbed()
-            .setColor("GREEN")
+            .setColor('GREEN')
             .addField('Pool Hashrate', `${pool_stats.hashrate.toFixed(3)}KH/s`, true)
             .addField('Pool Efficiency', `${pool_stats.efficiency}%`, true)
             .addField('Active Workers', pool_stats.workers, true)
