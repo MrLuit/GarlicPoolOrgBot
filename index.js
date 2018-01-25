@@ -116,17 +116,14 @@ const cmds = {
     },
     'poolstats': function(data) {
         const embed = new Discord.RichEmbed()
-            .setColor(getRandomColor())
+            .setColor("GREEN")
             .addField('Pool Hashrate', `${pool_stats.hashrate.toFixed(3)}KH/s`, true)
             .addField('Pool Efficiency', `${pool_stats.efficiency}%`, true)
             .addField('Active Workers', pool_stats.workers, true)
             .addField('Next Network Block', `${pool_stats.nextnetworkblock} (Current: [${pool_stats.currentnetworkblock}](https://explorer.grlc-bakery.fun/block/${pool_stats.currentBlockHash}}))`, true)
             .addField('Last Block Found', `[${pool_stats.lastblock}](https://garlicpool.org/index.php?page=statistics&action=round&height=${pool_stats.lastblock})`, true)
             .addField('Current Difficulty', pool_stats.networkdiff, true)
-            .addField('Est. Next Difficulty', `${pool_data.network.nextdifficulty} (changes in ${pool_data.network.blocksuntildiffchange} blocks)`, true)
-            .addField('Est. Avg. Time per Round', secondsToNiceTime(pool_stats.esttime), true)
-            .addField('Est. Shares this Round', `${pool_stats.estshares} (Current: ${pool_stats.progress})`, true)
-            .addField('Time Since Last Block', secondsToNiceTime(pool_stats.timesincelast), true);
+            .addField('Est. Next Difficulty', `${pool_data.network.nextdifficulty} (changes in ${pool_data.network.blocksuntildiffchange} blocks)`, true);
         return data.channel.send('**Statistics about Garlicpool.org:**', { embed });
     },
     'help': function (data) {
@@ -157,11 +154,4 @@ function uptime(seconds) {
     const numhours = Math.floor(((seconds % 31536000) % 86400) / 3600);
     const numminutes = Math.floor((((seconds % 31536000) % 86400) % 3600) / 60);
     return (numdays + 'd ' + numhours + 'h ' + numminutes + 'm');
-}
-
-function secondsToNiceTime(seconds) {
-    const esttime = new Date(null);
-    esttime.setSeconds(seconds);
-    const time = esttime.toISOString().substr(14, 5).split(':');
-    return `${time[0]}m ${time[1]}s`;
 }
