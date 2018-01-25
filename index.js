@@ -105,17 +105,17 @@ const cmds = {
         data.channel.send(`**Current block**: ${block}`);
     },
     'botstats': function(data) {
-        const embed = Discord.RichEmbed()
+        const embed = new Discord.RichEmbed()
             .setColor(getRandomColor())
             .addField('Uptime:', uptime(process.uptime()), true)
             .addField('Current RAM usage:', `${(process.memoryUsage().heapUsed / 1024 / 1024).toFixed(2)}MB`, true)
             .addField('Node.js Version:', process.version, true)
             .addField('Bot\'s Version:', `v${botversion.version}`, true)
             .addField('Discord.js Version:', `v${djsversion.version}`, true);
-        return data.channel.send(`**Statistics about ${this.client.user.username}:**`, { embed });
+        return data.channel.send(`**Statistics**`, { embed });
     },
     'poolstats': function(data) {
-        const embed = Discord.RichEmbed()
+        const embed = new Discord.RichEmbed()
             .setColor(getRandomColor())
             .addField('Pool Hashrate', `${pool_stats.hashrate.toFixed(3)}KH/s`, true)
             .addField('Pool efficiency', `${pool_stats.efficiency}%`, true)
