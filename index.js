@@ -38,7 +38,7 @@ async function updateData() {
         client.channels.get('405041206687432705').send(`Block #${block.height} was mined by ${finder ? `<@${finder.discord_id}>` : block.finder}!`);
         console.log(`New block mined: ${block.id}`);
     });
-    const [response_stats] = Promise.all([poolstats]);
+    const response_stats = await poolstats
     pool_stats = JSON.parse(response_stats.body.toString()).getpoolstatus.data;
     const { text } = await snekfetch.get(`https://explorer.grlc-bakery.fun/api/getblockhash?index=${pool_stats.currentnetworkblock}`);
     pool_stats.currentBlockHash = text;
