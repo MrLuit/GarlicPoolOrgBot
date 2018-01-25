@@ -9,6 +9,7 @@ const db = low(adapter);
 const djsversion = require('./node_modules/discord.js/package.json');
 const botversion = require('./package.json');
 let pool_data;
+let pool_stats;
 process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
 
 db.defaults({
@@ -21,6 +22,7 @@ const defined = function (thing) {
 };
 
 async function updateData() {
+    const poolstats = snekfetch.get(`https://garlicpool.org/index.php?page=api&action=getpoolstatus&api_key=${config.garlicpool_api_key}`);
     const { body } = await snekfetch.get(`https://garlicpool.org/index.php?page=api&action=getdashboarddata&api_key=${config.garlicpool_api_key}`);
     pool_data = JSON.parse(body.toString()).getdashboarddata.data;
     let hashrate = (pool_data.raw.pool.hashrate / 1000).toFixed(2);
@@ -36,6 +38,10 @@ async function updateData() {
         client.channels.get('405041206687432705').send(`Block #${block.height} was mined by ${finder ? `<@${finder.discord_id}>` : block.finder}!`);
         console.log(`New block mined: ${block.id}`);
     });
+    const [response_stats] = Promise.all([poolstats]);
+    pool_stats = JSON.parse(response_stats.body.toString()).getpoolstatus.data;
+    const { text } = await snekfetch.get(`https://explorer.grlc-bakery.fun/api/getblockhash?index=${pool_stats.currentnetworkblock}`);
+    pool_stats.currentBlockHash = text;
 }
 
 client.on('ready', () => {
@@ -107,6 +113,18 @@ const cmds = {
             .addField('Bot\'s Version:', `v${botversion.version}`, true)
             .addField('Discord.js Version:', `v${djsversion.version}`, true);
         return data.channel.send(`**Statistics about ${this.client.user.username}:**`, { embed });
+    },
+    'poolstats': function(data) {
+        const embed = Discord.RichEmbed()
+            .setColor(getRandomColor())
+            .addField('Pool Hashrate', `${pool_stats.hashrate.toFixed(3)}KH/s`, true)
+            .addField('Pool efficiency', `${pool_stats.efficiency}%`, true)
+            .addField('Active Workers', pool_stats.workers, true)
+            .addField('Next Network Block', `${pool_stats.nextnetworkblock} (Current: [${pool_stats.currentnetworkblock}](https://explorer.grlc-bakery.fun/block/${pool_stats.currentBlockHash}}))`, true)
+            .addField('Last Block Found', `[${pool_stats.lastblock}](https://garlicpool.org/index.php?page=statistics&action=round&height=${pool_stats.lastblock})`, true)
+            .addField('Current Difficulty', pool_stats.networkdiff, true)
+            .addField('Est. Next Difficulty', `${pool_data.network.nextdifficulty} (changes in ${pool_data.network.blocksuntildiffchange} blocks)`, true);
+        return data.channel.send('**Statistics about Garlicpool.org:**', { embed });
     },
     'help': function (data) {
         data.channel.send('**Commands**: ' + Object.keys(cmds).join(', '));
