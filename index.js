@@ -38,7 +38,7 @@ async function updateData() {
         client.channels.get('405041206687432705').send(`Block #${block.height} was mined by ${finder ? `<@${finder.discord_id}>` : block.finder}!`);
         console.log(`New block mined: ${block.id}`);
     });
-    const response_stats = await poolstats
+    const response_stats = await poolstats;
     pool_stats = JSON.parse(response_stats.body.toString()).getpoolstatus.data;
     const { text } = await snekfetch.get(`https://explorer.grlc-bakery.fun/api/getblockhash?index=${pool_stats.currentnetworkblock}`);
     pool_stats.currentBlockHash = text;
@@ -112,18 +112,21 @@ const cmds = {
             .addField('Node.js Version:', process.version, true)
             .addField('Bot\'s Version:', `v${botversion.version}`, true)
             .addField('Discord.js Version:', `v${djsversion.version}`, true);
-        return data.channel.send(`**Statistics**`, { embed });
+        return data.channel.send('**Statistics**', { embed });
     },
     'poolstats': function(data) {
         const embed = new Discord.RichEmbed()
             .setColor(getRandomColor())
             .addField('Pool Hashrate', `${pool_stats.hashrate.toFixed(3)}KH/s`, true)
-            .addField('Pool efficiency', `${pool_stats.efficiency}%`, true)
+            .addField('Pool Efficiency', `${pool_stats.efficiency}%`, true)
             .addField('Active Workers', pool_stats.workers, true)
             .addField('Next Network Block', `${pool_stats.nextnetworkblock} (Current: [${pool_stats.currentnetworkblock}](https://explorer.grlc-bakery.fun/block/${pool_stats.currentBlockHash}}))`, true)
             .addField('Last Block Found', `[${pool_stats.lastblock}](https://garlicpool.org/index.php?page=statistics&action=round&height=${pool_stats.lastblock})`, true)
             .addField('Current Difficulty', pool_stats.networkdiff, true)
-            .addField('Est. Next Difficulty', `${pool_data.network.nextdifficulty} (changes in ${pool_data.network.blocksuntildiffchange} blocks)`, true);
+            .addField('Est. Next Difficulty', `${pool_data.network.nextdifficulty} (changes in ${pool_data.network.blocksuntildiffchange} blocks)`, true)
+            .addField('Est. Avg. Time per Round', secondsToNiceTime(pool_stats.esttime), true)
+            .addField('Est. Shares this Round', `${pool_stats.estshares} (Current: ${pool_stats.progress})`, true)
+            .addField('Time Since Last Block', secondsToNiceTime(pool_stats.timesincelast), true);
         return data.channel.send('**Statistics about Garlicpool.org:**', { embed });
     },
     'help': function (data) {
@@ -141,17 +144,24 @@ client.on('message', data => {
 client.login(config.discord_token);
 
 function getRandomColor() {
-    var letters = '0123456789ABCDEF';
-    var color = '#';
-    for (var i = 0; i < 6; i++) {
+    const letters = '0123456789ABCDEF';
+    let color = '#';
+    for (let i = 0; i < 6; i++) {
         color += letters[Math.floor(Math.random() * 16)];
     }
     return color;
 }
 
 function uptime(seconds) {
-    var numdays = Math.floor((seconds % 31536000) / 86400);
-    var numhours = Math.floor(((seconds % 31536000) % 86400) / 3600);
-    var numminutes = Math.floor((((seconds % 31536000) % 86400) % 3600) / 60);
+    const numdays = Math.floor((seconds % 31536000) / 86400);
+    const numhours = Math.floor(((seconds % 31536000) % 86400) / 3600);
+    const numminutes = Math.floor((((seconds % 31536000) % 86400) % 3600) / 60);
     return (numdays + 'd ' + numhours + 'h ' + numminutes + 'm');
+}
+
+function secondsToNiceTime(seconds) {
+    const esttime = new Date(null);
+    esttime.setSeconds(seconds);
+    const time = esttime.toISOString().substr(14, 5).split(':');
+    return `${time[0]}m ${time[1]}s`;
 }
