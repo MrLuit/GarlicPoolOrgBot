@@ -12,11 +12,14 @@ const cmds = {
             return data.reply('Please specify your Garlicpool.org-username');
 
         // Checks if username is already used
-        let knowGiven = !!db.get('users').find({
+        let knowGiven = db.get('users').find({
             username: msg
         }).value();
-        if (knowGiven)
+        if (!!knowGiven) {
+            if(knowGiven.discord_id === data.author.id)
+                return data.reply(`You're already assigned that name`);
             return data.reply('Uh-oh, looks like that username is already tied to a Discord account!');
+        }
 
         // Checks if we know the user giving command already
         let knownsUser = !!db.get('users').find({
