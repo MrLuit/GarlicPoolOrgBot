@@ -25,22 +25,21 @@ function Bot() {
         block_mined: 20
     }).write();
 
+    const bot = this;
+    this.client.login(config.discord_token)
+        .then(() => console.log(`Logged in as ${bot.client.user.tag}!`))
+        .catch(error => console.log(`Failure to login: ${error}`));
 
-    const self = this;
     this.client.on('ready', () => {
-        console.log(`Logged in as ${self.client.user.tag}!`);
-        self.updateData();
-        self.client.setInterval(self.updateData, 20 * 1000);
+        bot.updateData();
+        bot.client.setInterval(bot.updateData.bind(bot), 20 * 1000);
     });
 
     this.client.on('message', data => {
-        let command = data.content.substr(1).split(' ');
-        if (!(command[0] in cmds) || (['404763968113082369', '369717342457823234'].includes(data.channel.guild.id)))
-            return;
-        cmds[command[0]](self, data, command[1]);
+        if(data.content.charAt(0) === '!')
+            bot.handleCommand(data);
+        // Do more stuff with messages?
     });
-
-    this.client.login(config.discord_token);
 }
 
 Bot.prototype.updateData = async function () {
@@ -63,7 +62,13 @@ Bot.prototype.updateData = async function () {
     });
     const response_stats = await poolstats;
     this.pool_stats = JSON.parse(response_stats.body.toString()).getpoolstatus.data;
-    this.pool_stats = JSON.parse(response_stats.body.toString()).getpoolstatus.data;
     const {text} = await snekfetch.get(`https://explorer.grlc-bakery.fun/api/getblockhash?index=${this.pool_stats.currentnetworkblock}`);
     this.pool_stats.currentBlockHash = text;
+};
+
+Bot.prototype.handleCommand = function(data){
+    let command = data.content.substr(1).split(' ');
+    if (!(command[0] in cmds) || !(['404763968113082369', '369717342457823234'].includes(data.channel.guild.id)))
+        return;
+    cmds[command[0]](self, data, command[1]);
 };
