@@ -5,6 +5,7 @@ const cmds = {
         cmds.setusername(data, msg);
     },
     'setusername': function (bot, data, msg) {
+        const db = bot.db;
         // Ensures there is a username given
         if (!utils.defined(msg) || msg.length === 0)
             return data.reply('Please specify your Garlicpool.org-username');
