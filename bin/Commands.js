@@ -1,8 +1,9 @@
 const utils = require("./Utils.js");
+const Discord = require("discord.js");
 
 const cmds = {
-    'setname': function (data, msg) {
-        cmds.setusername(data, msg);
+    'setname': function (bot, data, msg) {
+        cmds.setusername(bot, data, msg);
     },
     'setusername': function (bot, data, msg) {
         const db = bot.db;
@@ -86,4 +87,12 @@ const cmds = {
     }
 };
 
-module.exports = cmds;
+module.exports = {
+    handleCommand: function(bot, data) {
+        let command = data.content.substr(1).split(' ');
+        if (!(command[0] in cmds) || !(['406176402832883717', '404763968113082369', '369717342457823234'].includes(data.channel.guild.id)))
+            return;
+        cmds[command[0]](bot, data, command[1]);
+    },
+    commands: cmds
+};

@@ -7,7 +7,7 @@ const adapter = new FileSync('db.json');
 const config = require('./config.json');
 const db = low(adapter);
 const utils = require("./bin/Utils.js");
-const cmds = require("./bin/Commands.js");
+const handleCommand = require("./bin/Commands.js").handleCommand;
 
 process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
 
@@ -25,20 +25,24 @@ function Bot() {
         block_mined: 20
     }).write();
 
+
+
     const bot = this;
     this.client.login(config.discord_token)
         .then(() => console.log(`Logged in as ${bot.client.user.tag}!`))
-        .catch(error => console.log(`Failure to login: ${error}`));
+        .catch(error => console.log(`LOGIN ERROR: ${error}`));
 
     this.client.on('ready', () => {
-        bot.updateData();
-        bot.client.setInterval(bot.updateData.bind(bot), 20 * 1000);
+        bot.updateData().catch(error => console.log(`ERROR: ${error}`));
+        bot.client.setInterval(function(){
+            bot.updateData().catch(error => console.log(`ERROR: ${error}`));
+        }, 20 * 1000);
     });
 
     this.client.on('message', data => {
-        if(data.content.charAt(0) === '!')
-            bot.handleCommand(data);
-        // Do more stuff with messages?
+        console.log(`Got message: ${data.content}`);
+        // TODO: decide on command symbol
+        if(data.content.charAt(0) === '!') handleCommand(bot, data);
     });
 }
 
@@ -64,11 +68,4 @@ Bot.prototype.updateData = async function () {
     this.pool_stats = JSON.parse(response_stats.body.toString()).getpoolstatus.data;
     const {text} = await snekfetch.get(`https://explorer.grlc-bakery.fun/api/getblockhash?index=${this.pool_stats.currentnetworkblock}`);
     this.pool_stats.currentBlockHash = text;
-};
-
-Bot.prototype.handleCommand = function(data){
-    let command = data.content.substr(1).split(' ');
-    if (!(command[0] in cmds) || !(['404763968113082369', '369717342457823234'].includes(data.channel.guild.id)))
-        return;
-    cmds[command[0]](self, data, command[1]);
 };
