@@ -87,11 +87,17 @@ const cmds = {
     }
 };
 
+
+const commandSymbol = '!';
 module.exports = {
     handleCommand: function(bot, data) {
-        let command = data.content.substr(1).split(' ');
-        if (!(command[0] in cmds) || !(['406176402832883717', '404763968113082369', '369717342457823234'].includes(data.channel.guild.id)))
+        if(
+            data.content.charAt(0) !== commandSymbol ||
+            !(['406176402832883717', '404763968113082369', '369717342457823234'].includes(data.channel.guild.id)))
             return;
+        let command = data.content.substr(1).split(' ');
+        if (!(command[0] in cmds))
+            return data.reply("Unknown command, use !help to see available commands");
         cmds[command[0]](bot, data, command[1]);
     },
     commands: cmds
