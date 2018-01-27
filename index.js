@@ -47,8 +47,8 @@ Bot.prototype.updateData = async function () {
     const db = this.db, client = this.client;
     const garlic_value = snekfetch.get('https://api.coinmarketcap.com/v1/ticker/garlicoin/');
     const poolstats = snekfetch.get(`https://garlicpool.org/index.php?page=api&action=getpoolstatus&api_key=${config.garlicpool_api_key}`);
-    const { text } = await snekfetch.get(`https://garlicpool.org/index.php?page=api&action=getdashboarddata&api_key=${config.garlicpool_api_key}`);
-    this.pool_data = JSON.parse(text).getdashboarddata.data;
+    const { body } = await snekfetch.get(`https://garlicpool.org/index.php?page=api&action=getdashboarddata&api_key=${config.garlicpool_api_key}`);
+    this.pool_data = body;
     let hashrate = (this.pool_data.raw.pool.hashrate / 1000).toFixed(2);
     console.log(`Hashrate: ${hashrate} MH/s`);
     client.user.setActivity(`${hashrate} MH/s`);
@@ -66,7 +66,7 @@ Bot.prototype.updateData = async function () {
         console.log(`New block mined: ${block.id}`);
     });
     const response_stats = await poolstats;
-    this.pool_stats = JSON.parse(response_stats.text).getpoolstatus.data;
+    this.pool_stats = response_stats.body;
     const { text } = await snekfetch.get(`https://explorer.grlc-bakery.fun/api/getblockhash?index=${this.pool_stats.currentnetworkblock}`);
     this.pool_stats.currentBlockHash = text;
 
