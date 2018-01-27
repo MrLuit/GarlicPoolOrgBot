@@ -105,7 +105,8 @@ const cmds = {
         return data.channel.send('**Statistics about Garlicpool.org:**', {embed});
     },
     'status': async function (bot, data) {
-        const { body } = await snekfetch.get('https://garlicpool.org/backendstatus.php');
+        const { text } = await snekfetch.get('https://garlicpool.org/backendstatus.php');
+        const body = JSON.parse(text);
         const embed = new Discord.RichEmbed()
             .setColor(body.result === 'OK' ? 'GREEN' : (body.result === 'ERR' ? 'RED' : '#A3192E'))
             .addField('Statistics', body.statistics, true)
