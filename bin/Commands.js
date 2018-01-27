@@ -1,5 +1,6 @@
-const utils = require("./Utils.js");
-const Discord = require("discord.js");
+const utils = require('./Utils.js');
+const Discord = require('discord.js');
+const snekfetch = require('snekfetch');
 
 const cmds = {
     'setname': function (bot, data, msg) {
@@ -15,9 +16,9 @@ const cmds = {
         let knowGiven = db.get('users').find({
             username: msg
         }).value();
-        if (!!knowGiven) {
+        if (knowGiven) {
             if(knowGiven.discord_id === data.author.id)
-                return data.reply(`You're already assigned that name`);
+                return data.reply('You\'re already assigned that name');
             return data.reply('Uh-oh, looks like that username is already tied to a Discord account!');
         }
 
@@ -40,25 +41,25 @@ const cmds = {
         }
         data.reply('done!');
     },
-    "garlivalue": async function(bot, data) {
+    'price': function(bot, data) {
         // TODO: update when coinmarketcap has watched GRLC 1 day
         const lastChange = bot.garlic_data.percent_change_1h;
         const embed = new Discord.RichEmbed()
-            .setColor(lastChange >= 0 ? "#00ff00": "#ff0000") // green or red depending on last change
-            .addField("USD price", `$${bot.garlic_data.price_usd}`, true)
-            .addField("BTC price", bot.garlic_data.price_btc, true)
-            .addField("Rank", bot.garlic_data.rank, true)
-            .addField("Total supply", bot.garlic_data.total_supply, true)
-            .addField("24 hr volume (usd)", bot.garlic_data["24h_volume_usd"], true)
-            .addField("Hourly change", `${lastChange}%`, true);
-        return data.channel.send('**Value**', {embed});
+            .setColor(lastChange >= 0 ? 'GREEN': 'RED') // green or red depending on last change
+            .addField('USD price', `$${bot.garlic_data.price_usd}`, true)
+            .addField('BTC price', bot.garlic_data.price_btc, true)
+            .addField('Rank', bot.garlic_data.rank, true)
+            .addField('Total supply', bot.garlic_data.total_supply, true)
+            .addField('24 hr volume (usd)', bot.garlic_data['24h_volume_usd'], true)
+            .addField('Hourly change', `${lastChange}%`, true);
+        return data.channel.send({embed});
     },
     'hashrate': function (bot, data) {
         const pool_data = bot.pool_data;
         const total_hashrate = (pool_data.raw.network.hashrate / 1000000).toFixed(2);
         const pool_hashrate = (pool_data.raw.pool.hashrate / 1000).toFixed(2);
         const pool_percent = (pool_data.raw.pool.hashrate / pool_data.raw.network.hashrate * 100).toFixed(2);
-        data.channel.send(
+        return data.channel.send(
             `**Total hashrate:** ${total_hashrate} GH/s\n` +
             `**Pool hashrate:** ${pool_hashrate} MH/s\n` +
             `**Pool dominance:** ${pool_percent}%`
@@ -66,18 +67,18 @@ const cmds = {
     },
     'workers': function (bot, data) {
         const workers = bot.pool_data.pool.workers;
-        data.channel.send(`**Workers**: ${workers}`);
+        return data.channel.send(`**Workers**: ${workers}`);
     },
     'difficulty': function (bot, data) {
         const pool_data = bot.pool_data;
         const difficulty = pool_data.network.difficulty;
         const next_difficulty = pool_data.network.nextdifficulty;
         const blocksuntildiffchange = pool_data.network.blocksuntildiffchange;
-        data.channel.send(`**Difficulty**: ${difficulty}\n**Next difficulty**: ${next_difficulty} (changes in ${blocksuntildiffchange} blocks)`);
+        return data.channel.send(`**Difficulty**: ${difficulty}\n**Next difficulty**: ${next_difficulty} (changes in ${blocksuntildiffchange} blocks)`);
     },
     'block': function (bot, data) {
         const block = bot.pool_data.network.block;
-        data.channel.send(`**Current block**: ${block}`);
+        return data.channel.send(`**Current block**: ${block}`);
     },
     'botstats': function (bot, data) {
         const embed = new Discord.RichEmbed()
@@ -103,8 +104,19 @@ const cmds = {
             .addField('Est. Next Difficulty', `${pool_data.network.nextdifficulty} (changes in ${pool_data.network.blocksuntildiffchange} blocks)`, true);
         return data.channel.send('**Statistics about Garlicpool.org:**', {embed});
     },
+    'status': async function (bot, data) {
+        const { body } = await snekfetch.get('https://garlicpool.org/backendstatus.php');
+        const embed = new Discord.RichEmbed()
+            .setColor(body.result === 'OK' ? 'GREEN' : (body.result === 'ERR' ? 'RED' : '#A3192E'))
+            .addField('Statistics', body.statistics, true)
+            .addField('Block Finder', body.findblock, true)
+            .addField('Proportional Payout', body.proportional_payout, true)
+            .addField('Block Update', body.blockupdate, true)
+            .addField('Payouts', body.payouts);
+        return data.channel.send('**Back End Response:**', { embed });
+    },
     'help': function (bot, data) {
-        data.channel.send('**Commands**: ' + Object.keys(cmds).join(', '));
+        return data.channel.send('**Commands**: ' + Object.keys(cmds).join(', '));
     }
 };
 
@@ -118,7 +130,7 @@ module.exports = {
             return;
         let command = data.content.substr(1).split(' ');
         if (!(command[0] in cmds))
-            return data.reply("Unknown command, use !help to see available commands");
+            return data.reply('Unknown command, use !help to see available commands');
         cmds[command[0]](bot, data, command[1]);
     },
     commands: cmds

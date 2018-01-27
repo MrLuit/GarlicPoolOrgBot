@@ -1,13 +1,11 @@
 const Discord = require('discord.js');
 const snekfetch = require('snekfetch');
-const client = new Discord.Client();
 const low = require('lowdb');
 const FileSync = require('lowdb/adapters/FileSync');
 const adapter = new FileSync('db.json');
 const config = require('./config.json');
-const db = low(adapter);
-const utils = require("./bin/Utils.js");
-const handleCommand = require("./bin/Commands.js").handleCommand;
+const utils = require('./bin/Utils.js');
+const handleCommand = require('./bin/Commands.js').handleCommand;
 
 process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
 
@@ -47,7 +45,7 @@ function Bot() {
 
 Bot.prototype.updateData = async function () {
     const db = this.db, client = this.client;
-    const garlic_value = snekfetch.get(`https://api.coinmarketcap.com/v1/ticker/garlicoin/`);
+    const garlic_value = snekfetch.get('https://api.coinmarketcap.com/v1/ticker/garlicoin/');
     const poolstats = snekfetch.get(`https://garlicpool.org/index.php?page=api&action=getpoolstatus&api_key=${config.garlicpool_api_key}`);
     const {body} = await snekfetch.get(`https://garlicpool.org/index.php?page=api&action=getdashboarddata&api_key=${config.garlicpool_api_key}`);
     this.pool_data = JSON.parse(body.toString()).getdashboarddata.data;
