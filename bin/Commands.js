@@ -40,6 +40,19 @@ const cmds = {
         }
         data.reply('done!');
     },
+    "garlivalue": async function(bot, data) {
+        // TODO: update when coinmarketcap has watched GRLC 1 day
+        const lastChange = bot.garlic_data.percent_change_1h;
+        const embed = new Discord.RichEmbed()
+            .setColor(lastChange >= 0 ? "#00ff00": "#ff0000") // green or red depending on last change
+            .addField("USD price", `$${bot.garlic_data.price_usd}`, true)
+            .addField("BTC price", bot.garlic_data.price_btc, true)
+            .addField("Rank", bot.garlic_data.rank, true)
+            .addField("Total supply", bot.garlic_data.total_supply, true)
+            .addField("24 hr volume (usd)", bot.garlic_data["24h_volume_usd"], true)
+            .addField("Hourly change", `${lastChange}%`, true);
+        return data.channel.send('**Value**', {embed});
+    },
     'hashrate': function (bot, data) {
         const pool_data = bot.pool_data;
         const total_hashrate = (pool_data.raw.network.hashrate / 1000000).toFixed(2);

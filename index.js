@@ -16,6 +16,7 @@ new Bot();
 function Bot() {
     this.djsversion = require('./node_modules/discord.js/package.json');
     this.botversion = require('./package.json');
+    this.garlic_data = null;
     this.pool_data = null;
     this.pool_stats = null;
     this.client = new Discord.Client();
@@ -46,6 +47,7 @@ function Bot() {
 
 Bot.prototype.updateData = async function () {
     const db = this.db, client = this.client;
+    const garlic_value = snekfetch.get(`https://api.coinmarketcap.com/v1/ticker/garlicoin/`);
     const poolstats = snekfetch.get(`https://garlicpool.org/index.php?page=api&action=getpoolstatus&api_key=${config.garlicpool_api_key}`);
     const {body} = await snekfetch.get(`https://garlicpool.org/index.php?page=api&action=getdashboarddata&api_key=${config.garlicpool_api_key}`);
     this.pool_data = JSON.parse(body.toString()).getdashboarddata.data;
@@ -69,4 +71,6 @@ Bot.prototype.updateData = async function () {
     this.pool_stats = JSON.parse(response_stats.body.toString()).getpoolstatus.data;
     const {text} = await snekfetch.get(`https://explorer.grlc-bakery.fun/api/getblockhash?index=${this.pool_stats.currentnetworkblock}`);
     this.pool_stats.currentBlockHash = text;
+
+    this.garlic_data = (await garlic_value).body[0];
 };
