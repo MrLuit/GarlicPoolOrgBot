@@ -42,10 +42,13 @@ const cmds = {
         data.reply('done!');
     },
     'price': function(bot, data) {
-        // TODO: update when coinmarketcap has watched GRLC 1 day
+        // TODO: update when coinmarketcap has watched GRLC 1+ day(s)
         const lastChange = bot.garlic_data.percent_change_1h;
+        const colorChange = Math.max(-127.5, Math.min(127.5, 2 * lastChange * 1.28));
+        const redColor = Math.round(127.5 - colorChange).toString(16).padStart(2, '0');
+        const greenColor = Math.round(127.5 + colorChange).toString(16).padStart(2, '0');
         const embed = new Discord.RichEmbed()
-            .setColor(lastChange >= 0 ? 'GREEN': 'RED') // green or red depending on last change
+            .setColor(`#${redColor}${greenColor}00`) // green or red depending on last change
             .addField('USD price', `$${bot.garlic_data.price_usd}`, true)
             .addField('BTC price', bot.garlic_data.price_btc, true)
             .addField('Rank', bot.garlic_data.rank, true)
