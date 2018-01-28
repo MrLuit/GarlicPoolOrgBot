@@ -42,11 +42,16 @@ const cmds = {
         data.reply('done!');
     },
     'price': function(bot, data) {
-        // TODO: update when coinmarketcap has watched GRLC 1+ day(s)
-        const lastChange = bot.garlic_data.percent_change_1h;
-        const colorChange = Math.max(-127.5, Math.min(127.5, 2 * lastChange * 1.28));
+        const lastChange = 2 * bot.garlic_data.percent_change_1h;
+        const colorChange = Math.max(-127.5, Math.min(127.5, lastChange * 1.28));
         const redColor = Math.round(127.5 - colorChange).toString(16).padStart(2, '0');
         const greenColor = Math.round(127.5 + colorChange).toString(16).padStart(2, '0');
+
+        // TODO: update when 1 week has passed (today: 28/01/2018)
+        const weeklyChange = utils.defined(bot.garlic_data.percent_change_7d)
+            ? `${bot.garlic_data.percent_change_7d}%`
+            : "TBD";
+
         const embed = new Discord.RichEmbed()
             .setColor(`#${redColor}${greenColor}00`) // green or red depending on last change
             .addField('USD price', `$${bot.garlic_data.price_usd}`, true)
@@ -54,7 +59,10 @@ const cmds = {
             .addField('Rank', bot.garlic_data.rank, true)
             .addField('Total supply', bot.garlic_data.total_supply, true)
             .addField('24 hr volume (usd)', bot.garlic_data['24h_volume_usd'], true)
-            .addField('Hourly change', `${lastChange}%`, true);
+            .addBlankField(true)
+            .addField('Hourly change', `${bot.garlic_data.percent_change_1h}%`, true)
+            .addField('Daily change', `${bot.garlic_data.percent_change_24h}%`, true)
+            .addField('Weekly change', weeklyChange, true);
         return data.channel.send({embed});
     },
     'hashrate': function (bot, data) {
