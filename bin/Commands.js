@@ -56,9 +56,9 @@ const cmds = {
     },
     'hashrate': function (bot, data) {
         const pool_data = bot.pool_data;
-        const total_hashrate = (pool_data.network.hashrate / 1000000).toFixed(2);
-        const pool_hashrate = (pool_data.pool.hashrate / 1000).toFixed(2);
-        const pool_percent = (pool_data.pool.hashrate / pool_data.network.hashrate * 100).toFixed(2);
+        const total_hashrate = (pool_data.raw.network.hashrate / 1000000).toFixed(2);
+        const pool_hashrate = (pool_data.raw.pool.hashrate / 1000).toFixed(2);
+        const pool_percent = (pool_data.raw.pool.hashrate / pool_data.raw.network.hashrate * 100).toFixed(2);
         return data.channel.send(
             `**Total hashrate:** ${total_hashrate} GH/s\n` +
             `**Pool hashrate:** ${pool_hashrate} MH/s\n` +
@@ -105,7 +105,8 @@ const cmds = {
         return data.channel.send('**Statistics about Garlicpool.org:**', {embed});
     },
     'status': async function (bot, data) {
-        const { body } = await snekfetch.get('https://garlicpool.org/backendstatus.php');
+        const { text } = await snekfetch.get('https://garlicpool.org/backendstatus.php');
+        const body = JSON.parse(text);
         const embed = new Discord.RichEmbed()
             .setColor(body.result === 'OK' ? 'GREEN' : (body.result === 'ERR' ? 'RED' : '#A3192E'))
             .addField('Statistics', body.statistics, true)
