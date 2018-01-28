@@ -61,8 +61,9 @@ Bot.prototype.updateData = async function () {
         }).value();
 
         const blockChannel = client.channels.get('405041206687432705');
+        const name = finder ? `<@${finder.discord_id}>` : block.finder;
         if(utils.defined(blockChannel))
-            blockChannel.send(`Block #${block.height} was mined by ${finder ? `<@${finder.discord_id}>` : block.finder}!`);
+            blockChannel.send(`Block #${block.height} was mined by ${name}!`);
         console.log(`New block mined: ${block.id}`);
     });
     const response_stats = await poolstats;
