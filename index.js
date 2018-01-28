@@ -66,7 +66,7 @@ Bot.prototype.updateData = async function () {
         console.log(`New block mined: ${block.id}`);
     });
     const response_stats = await poolstats;
-    this.pool_stats = JSON.parse(response_stats.text;
+    this.pool_stats = JSON.parse(response_stats.text);
     const responsedd = await snekfetch.get(`https://explorer.grlc-bakery.fun/api/getblockhash?index=${this.pool_stats.currentnetworkblock}`);
     this.pool_stats.currentBlockHash = responsedd.text;
 
