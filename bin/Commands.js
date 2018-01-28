@@ -115,7 +115,7 @@ const cmds = {
             .addField('Block Finder', body.findblock, true)
             .addField('Proportional Payout', body.proportional_payout, true)
             .addField('Block Update', body.blockupdate, true)
-            .addField('Payouts', body.payouts);
+            .addField('Payouts', body.payouts, true);
         return data.channel.send('**Back End Response:**', { embed });
     },
     'help': function (bot, data) {
