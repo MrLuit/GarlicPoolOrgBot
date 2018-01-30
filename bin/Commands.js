@@ -67,12 +67,12 @@ const cmds = {
     },
     'hashrate': function (bot, data) {
         const pool_data = bot.pool_data;
-        const total_hashrate = (pool_data.raw.network.hashrate / 1000000).toFixed(2);
-        const pool_hashrate = (pool_data.raw.pool.hashrate / 1000).toFixed(2);
+        const total_hashrate = utils.readableHashrate(pool_data.raw.network.hashrate);
+        const pool_hashrate = utils.readableHashrate(pool_data.raw.pool.hashrate);
         const pool_percent = (pool_data.raw.pool.hashrate / pool_data.raw.network.hashrate * 100).toFixed(2);
         return data.channel.send(
-            `**Total hashrate:** ${total_hashrate} GH/s\n` +
-            `**Pool hashrate:** ${pool_hashrate} MH/s\n` +
+            `**Total hashrate:** ${total_hashrate}\n` +
+            `**Pool hashrate:** ${pool_hashrate}\n` +
             `**Pool dominance:** ${pool_percent}%`
         );
     },

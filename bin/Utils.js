@@ -17,6 +17,13 @@ const utils = {
     },
     defined: function (thing) {
         return typeof (thing) !== 'undefined' && thing !== null;
+    },
+    readableHashrate: function(hashrate, start = 'K') {
+        const denominators = ['', 'K', 'M', 'G', 'T', 'P', 'E', 'Z', 'Y'];
+        let i = start === 'K' ? 1
+            : Math.max(0, denominators.indexOf(start.toUpperCase()));
+        for(; i < denominators.length && hashrate >= 1000; i++) hashrate /= 1000;
+        return `${(hashrate).toFixed(2)} ${denominators[i]}H/s`
     }
 };
 

@@ -49,9 +49,9 @@ Bot.prototype.updateData = async function () {
     const poolstats = snekfetch.get(`https://garlicpool.org/index.php?page=api&action=getpoolstatus&api_key=${config.garlicpool_api_key}`);
     const { text } = await snekfetch.get(`https://garlicpool.org/index.php?page=api&action=getdashboarddata&api_key=${config.garlicpool_api_key}`);
     this.pool_data = JSON.parse(text).getdashboarddata.data;
-    let hashrate = (this.pool_data.raw.pool.hashrate / 1000).toFixed(2);
-    console.log(`Hashrate: ${hashrate} MH/s`);
-    client.user.setActivity(`${hashrate} MH/s`);
+    let hashrate = utils.readableHashrate(this.pool_data.raw.pool.hashrate);
+    console.log(`Hashrate: ${hashrate}`);
+    client.user.setActivity(`${hashrate}`);
     this.pool_data.pool.blocks.forEach(block => {
         if (!block.finder || block.id <= db.get('block_mined').value()) return;
         db.update('block_mined', n => n + 1)
