@@ -57,8 +57,8 @@ const cmds = {
             .addField('USD price', `$${bot.garlic_data.price_usd}`, true)
             .addField('BTC price', bot.garlic_data.price_btc, true)
             .addField('Rank', bot.garlic_data.rank, true)
-            .addField('Total supply', bot.garlic_data.total_supply, true)
-            .addField('24 hr volume (usd)', bot.garlic_data['24h_volume_usd'], true)
+            .addField('Total supply', utils.readableBigNumber(bot.garlic_data.total_supply), true)
+            .addField('24 hr volume (usd)', utils.readableBigNumber(bot.garlic_data['24h_volume_usd']), true)
             .addBlankField(true)
             .addField('Hourly change', `${bot.garlic_data.percent_change_1h}%`, true)
             .addField('Daily change', `${bot.garlic_data.percent_change_24h}%`, true)
@@ -105,8 +105,8 @@ const cmds = {
         const pool_data = bot.pool_data;
         const pool_stats = bot.pool_stats;
         const embed = new Discord.RichEmbed()
-            .setColor('GREEN')
-            .addField('Pool Hashrate', `${pool_stats.hashrate.toFixed(3)}KH/s`, true)
+            .setColor(utils.getRandomColor())
+            .addField('Pool Hashrate', `${utils.readableHashrate(pool_stats.hashrate)}`, true)
             .addField('Pool Efficiency', `${pool_stats.efficiency}%`, true)
             .addField('Active Workers', pool_stats.workers, true)
             .addField('Next Network Block', `${pool_stats.nextnetworkblock} (Current: [${pool_stats.currentnetworkblock}](https://explorer.grlc-bakery.fun/block/${pool_stats.currentBlockHash}}))`, true)

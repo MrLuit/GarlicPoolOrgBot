@@ -24,6 +24,15 @@ const utils = {
             : Math.max(0, denominators.indexOf(start.toUpperCase()));
         for(; i < denominators.length && hashrate >= 1000; i++) hashrate /= 1000;
         return `${(hashrate).toFixed(2)} ${denominators[i]}H/s`
+    },
+    readableBigNumber: function(number, start = '') {
+        const denominators = ['', 'Thousand', 'Million', 'Billion', 'Trillion', 'Quadrillion'];
+        const neg = number < 0 ? '-' : '';
+        number = Math.abs(number);
+        let i = Math.max(0, denominators.indexOf(start));
+        for(; i < denominators.length && number >= 1000; i++) number /= 1000;
+        if(i === 0) return `${neg}${(number).toFixed(2)}`;
+        return `${neg}${(number).toFixed(2)} ${denominators[i]}`
     }
 };
 
