@@ -84,7 +84,6 @@ const cmds = {
         const pool_data = bot.pool_data;
         const difficulty = pool_data.network.difficulty;
         const next_difficulty = pool_data.network.nextdifficulty;
-        const blocksuntildiffchange = pool_data.network.blocksuntildiffchange;
         return data.channel.send(`**Difficulty**: ${difficulty}\n**Est. Next difficulty**: ${next_difficulty}`);
     },
     'block': function (bot, data) {
