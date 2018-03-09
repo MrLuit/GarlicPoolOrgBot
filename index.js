@@ -43,19 +43,36 @@ function Bot() {
     });
 }
 
+let lastHashrate = -1;
+
 Bot.prototype.updateData = async function () {
     const db = this.db, client = this.client;
     const garlic_value = snekfetch.get('https://api.coinmarketcap.com/v1/ticker/garlicoin/');
     const poolstats = snekfetch.get(`https://garlicpool.org/index.php?page=api&action=getpoolstatus&api_key=${config.garlicpool_api_key}`);
     const { text } = await snekfetch.get(`https://garlicpool.org/index.php?page=api&action=getdashboarddata&api_key=${config.garlicpool_api_key}`);
+
     this.pool_data = JSON.parse(text).getdashboarddata.data;
-    let hashrate = utils.readableHashrate(this.pool_data.raw.pool.hashrate);
-    console.log(`Hashrate: ${hashrate}`);
+
+    let hashrate = this.pool_data.raw.pool.hashrate;
+    // Ignore hashrate if it suddenly spikes
+    if(lastHashrate >= 0 && lastHashrate * 1.1 < hashrate)
+        this.pool_data.raw.pool.hashrate = lastHashrate;
+    lastHashrate = hashrate;
+    hashrate = utils.readableHashrate(hashrate);
+
+
+    console.log(`New Hashrate: ${hashrate}`);
+    console.log(`Used hashrate: ${utils.readableHashrate(lastHashrate)}`);
     client.user.setActivity(`${hashrate}`);
+
+    // Get lowest id first
+    this.pool_data.pool.blocks.sort((a,b) => a.id - b.id);
+    let lastId = db.get('block_mined').value();
+
     this.pool_data.pool.blocks.forEach(block => {
-        if (!block.finder || block.id <= db.get('block_mined').value()) return;
-        db.update('block_mined', n => n + 1)
-            .write();
+        if (!block.finder || block.id <= lastId) return;
+        lastId = block.id;
+        db.update('block_mined', n => block.id).write();
         let finder = db.get('users').find({
             username: block.finder
         }).value();
