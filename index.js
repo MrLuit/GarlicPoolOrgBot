@@ -85,7 +85,7 @@ Bot.prototype.updateData = async function () {
     });
     const response_stats = await poolstats;
     this.pool_stats = JSON.parse(response_stats.text).getpoolstatus.data;
-    const response = await snekfetch.get(`https://explorer.grlc-bakery.fun/api/getblockhash?index=${this.pool_stats.currentnetworkblock}`);
+    const response = await snekfetch.get(`https://garli.co.in/api/getblockhash?index=${this.pool_stats.currentnetworkblock}`);
     this.pool_stats.currentBlockHash = response.text;
 
     this.garlic_data = (await garlic_value).body[0];
