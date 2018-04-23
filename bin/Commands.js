@@ -108,7 +108,7 @@ const cmds = {
             .addField('Pool Hashrate', `${utils.readableHashrate(pool_stats.hashrate)}`, true)
             .addField('Pool Efficiency', `${pool_stats.efficiency}%`, true)
             .addField('Active Workers', pool_stats.workers, true)
-            .addField('Next Network Block', `${pool_stats.nextnetworkblock} (Current: [${pool_stats.currentnetworkblock}](https://explorer.grlc-bakery.fun/block/${pool_stats.currentBlockHash}}))`, true)
+            .addField('Next Network Block', `${pool_stats.nextnetworkblock} (Current: [${pool_stats.currentnetworkblock}](https://garli.co.in/block/${pool_stats.currentBlockHash}}))`, true)
             .addField('Last Block Found', `[${pool_stats.lastblock}](https://garlicpool.org/index.php?page=statistics&action=round&height=${pool_stats.lastblock})`, true)
             .addField('Current Difficulty', pool_stats.networkdiff, true)
             .addField('Est. Next Difficulty', `${pool_data.network.nextdifficulty} (changes in ${pool_data.network.blocksuntildiffchange} blocks)`, true);
